@@ -71,5 +71,32 @@ Originally I just removed some of the code to make it resize faster. My next ide
 
 Finally I realised I don't have to have JS cycle through the DOM changing classes. Instead of can just create and modify the class of the container and use CSS specification to change the sizes which is much faster.
 
+#### References
+### Animation
+* http://jankfree.org/
+* http://www.html5rocks.com/en/tutorials/speed/animations/
+* http://www.paulirish.com/2012/why-moving-elements-with-translate-is-better-than-posabs-topleft/
+
+### Painting
+* http://www.html5rocks.com/en/tutorials/speed/unnecessary-paints/
+* http://www.html5rocks.com/en/tutorials/speed/rendering/
+* http://www.html5rocks.com/en/tutorials/speed/high-performance-animations/
+* https://piazza.com/class/i0sf6tsmg0r7do?cid=1200
+* http://davidwalsh.name/translate3d
+
+### Scrolling:
+* http://www.html5rocks.com/en/tutorials/speed/scrolling/
+
+### Testing performance
+* http://aerotwist.com/blog/dont-guess-it-test-it/
+* http://addyosmani.com/blog/performance-optimisation-with-timeline-profiles/
+* https://developer.chrome.com/devtools/docs/rendering-settings
+* https://developer.chrome.com/devtools/docs/timeline
+
+### Created JSPref's:
+* http://jsperf.com/for-loop-optimisation
+* http://jsperf.com/fastest-array-loops-in-javascript/329
+
+
 ## Now is time to run
 Download and run, Now!

@@ -496,16 +496,48 @@ function logAverageFrame(times) {   // times is the array of User Timing measure
 // The following code for sliding background pizzas was pulled from Ilya's demo found at:
 // https://www.igvita.com/slides/2012/devtools-tips-and-tricks/jank-demo.html
 
-// Moves the sliding background pizzas based on scroll position
+// Used to check if position function is finished executing before firing another one
+var updatePositionsTick = false;
+
+// Executed on scroll from listner
+function scrolled() {
+  //requestAnimationFrame(updatePositions);
+  requestTick(); //removed after testing
+}
+
+// Check tick
+function requestTick() {
+
+  // If tick is false. Then updatePosition is ready to go again.
+  // Not sure if it's actually working or making a difference. I did some tests and found that
+  // scrolled and updatePositions were called an equal amount of times.
+  // Left in because it doesn't seem to hurt and may have an effect for slower devices?
+  if (!updatePositionsTick) {
+    requestAnimationFrame(updatePositions);
+    updatePositionsTick = true;
+  }
+
+}
+
+// Updates position of pizzas
+// Choose to use style.left from the recorded start position of basicLeft as it ran same speed
+// as translateX in Chrome but much faster in IE and a little faster in firefox
+// http://jsperf.com/udacity-optimise-loop-test & testing using chrome DevTools
 function updatePositions() {
   frame++;
   window.performance.mark("mark_start_frame");
 
-  var items = document.querySelectorAll('.mover');
-  for (var i = 0; i < items.length; i++) {
-    var phase = Math.sin((document.body.scrollTop / 1250) + (i % 5));
-    items[i].style.left = items[i].basicLeft + 100 * phase + 'px';
+  var items = document.getElementsByClassName('mover'); // Cache items
+  var len = items.length; // Cache length
+  var phaseInt = document.body.scrollTop / 1250; // Move calulation out of loop
+
+  for (var i = 0; i < len; i++) {
+    var move = Math.sin(phaseInt + (i % 5)) * 100; // Calcuations that are on on invidivual basis
+    //items[i].style.left = move + items[i].basicLeft + 'px'; // move the item
+    items[i].style.transform = "translateX(" + move + "px)";
   }
+
+  updatePositionsTick = false;
 
   // User Timing API to the rescue again. Seriously, it's worth learning.
   // Super easy to create custom metrics.
@@ -517,22 +549,44 @@ function updatePositions() {
   }
 }
 
-// runs updatePositions on scroll
-window.addEventListener('scroll', updatePositions);
 
-// Generates the sliding pizzas when the page loads.
-document.addEventListener('DOMContentLoaded', function() {
+function createBGPizza() {
   var cols = 8;
   var s = 256;
-  for (var i = 0; i < 200; i++) {
+  var windowHeight = (window.innerHeight || document.documentElement.clientHeight || 1080); // IE fix. 1080 if something goes wrong.
+  var bgPizzasToGen = Math.ceil(windowHeight / s) * cols;
+
+  for (var i = 0; i < bgPizzasToGen; i++) { // Generating pizzas based on screen size instead of a default 200.
     var elem = document.createElement('img');
+    var left = (i % cols) * s;
     elem.className = 'mover';
-    elem.src = "images/pizza.png";
+    elem.src = "images/pizza-small.png"; // Stop the browser from resizing image
     elem.style.height = "100px";
     elem.style.width = "73.333px";
-    elem.basicLeft = (i % cols) * s;
+    elem.style.left = left + 'px';
+    elem.basicLeft = left;
     elem.style.top = (Math.floor(i / cols) * s) + 'px';
-    document.querySelector("#movingPizzas1").appendChild(elem);
+    document.getElementById("movingPizzas1").appendChild(elem);
   }
   updatePositions();
-});
+}
+
+function resizeBGPizza() {
+  document.getElementById("movingPizzas1").innerHTML = "";
+  /*
+  var ellist = document.getElementsByClassName('.mover');
+  var l = ellist.length;
+  for (var i = 0; i < l; i++) {
+    ellist[i].remove();
+  }*/
+  createBGPizza();
+}
+
+// runs updatePositions on scroll
+window.addEventListener('scroll', scrolled);
+
+// Generates the sliding pizzas when the page loads.
+document.addEventListener('DOMContentLoaded', createBGPizza);
+
+// Re-generates the amount of pizzas depending on screen size
+window.addEventListener('resize', resizeBGPizza);
